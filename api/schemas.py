@@ -10,6 +10,10 @@ class ProdutoCreateRequest(StrictSchema):
     preco: float
 
 
+class QuantidadeRequest(StrictSchema):
+    quantidade: int
+
+
 class ProdutoResponse(BaseModel):
     codigo: int
     preco: float

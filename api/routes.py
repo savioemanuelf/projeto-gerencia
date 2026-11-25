@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
 from api.dependencies import get_loja_service
-from api.schemas import EstoqueResponse, ProdutoCreateRequest, ProdutoResponse
+from api.schemas import (
+    EstoqueResponse,
+    ProdutoCreateRequest,
+    ProdutoResponse,
+    QuantidadeRequest,
+)
 from service import LojaService
 
 router = APIRouter(prefix="/loja")
@@ -19,4 +24,14 @@ def create_produto(
 @router.get("/produto/{codigo}/estoque", response_model=EstoqueResponse)
 def get_estoque(codigo: int, service: LojaService = Depends(get_loja_service)):
     estoque = service.get_estoque(codigo)
+    return EstoqueResponse(codigo=codigo, estoque=estoque)
+
+
+@router.put("/produto/{codigo}/entrada", response_model=EstoqueResponse)
+def add_estoque(
+    codigo: int,
+    request: QuantidadeRequest,
+    service: LojaService = Depends(get_loja_service),
+):
+    estoque = service.add_estoque(codigo, request.quantidade)
     return EstoqueResponse(codigo=codigo, estoque=estoque)
