@@ -14,3 +14,8 @@ class ProdutoResponse(BaseModel):
     codigo: int
     preco: float
     estoque: int
+
+
+class EstoqueResponse(BaseModel):
+    codigo: int
+    estoque: int

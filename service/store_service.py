@@ -1,6 +1,10 @@
 from decimal import Decimal
 
-from service.exceptions import InvalidDataError, ProdutoAlreadyExistsError
+from service.exceptions import (
+    InvalidDataError,
+    ProdutoAlreadyExistsError,
+    ProdutoNotFoundError,
+)
 from service.models import Produto
 from service.repository import ProdutoRepository
 
@@ -18,6 +22,16 @@ class LojaService:
 
         produto = Produto(codigo=codigo, preco=preco, estoque=0)
         self.repository.save(produto)
+        return produto
+
+    def get_estoque(self, codigo: int) -> int:
+        return self._get_produto(codigo).estoque
+
+    def _get_produto(self, codigo: int) -> Produto:
+        self._validate_codigo(codigo)
+        produto = self.repository.get(codigo)
+        if produto is None:
+            raise ProdutoNotFoundError(codigo)
         return produto
 
     @staticmethod
