@@ -35,3 +35,13 @@ def add_estoque(
 ):
     estoque = service.add_estoque(codigo, request.quantidade)
     return EstoqueResponse(codigo=codigo, estoque=estoque)
+
+
+@router.put("/produto/{codigo}/saida", response_model=EstoqueResponse)
+def remove_estoque(
+    codigo: int,
+    request: QuantidadeRequest,
+    service: LojaService = Depends(get_loja_service),
+):
+    estoque = service.remove_estoque(codigo, request.quantidade)
+    return EstoqueResponse(codigo=codigo, estoque=estoque)
