@@ -27,6 +27,13 @@ class LojaService:
     def get_estoque(self, codigo: int) -> int:
         return self._get_produto(codigo).estoque
 
+    def add_estoque(self, codigo: int, quantidade: int) -> int:
+        self._validate_quantidade(quantidade)
+        produto = self._get_produto(codigo)
+        produto.estoque += quantidade
+        self.repository.save(produto)
+        return produto.estoque
+
     def _get_produto(self, codigo: int) -> Produto:
         self._validate_codigo(codigo)
         produto = self.repository.get(codigo)
@@ -38,6 +45,13 @@ class LojaService:
     def _validate_codigo(codigo: int) -> None:
         if not isinstance(codigo, int) or isinstance(codigo, bool):
             raise InvalidDataError("Código deve ser um número inteiro")
+
+    @staticmethod
+    def _validate_quantidade(quantidade: int) -> None:
+        if not isinstance(quantidade, int) or isinstance(quantidade, bool):
+            raise InvalidDataError("Quantidade deve ser um número inteiro")
+        if quantidade <= 0:
+            raise InvalidDataError("Quantidade deve ser maior que zero")
 
     @staticmethod
     def _parse_preco(preco: Decimal | int | float) -> Decimal:
