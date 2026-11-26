@@ -43,6 +43,40 @@ class LojaService:
         self.repository.save(produto)
         return produto.estoque
 
+    def create_venda(self, itens: list[tuple[int, int]]) -> dict:
+        if not itens:
+            raise InvalidDataError("A venda deve ter pelo menos um item")
+
+        produtos = {}
+        total_por_codigo = {}
+        for codigo, quantidade in itens:
+            self._validate_quantidade(quantidade)
+            produtos[codigo] = self._get_produto(codigo)
+            total_por_codigo[codigo] = total_por_codigo.get(codigo, 0) + quantidade
+
+        for codigo, quantidade_total in total_por_codigo.items():
+            if quantidade_total > produtos[codigo].estoque:
+                raise InvalidDataError(f"Estoque insuficiente para o produto {codigo}")
+
+        resultado = []
+        total = Decimal("0")
+        for codigo, quantidade in itens:
+            produto = produtos[codigo]
+            produto.estoque -= quantidade
+            self.repository.save(produto)
+            subtotal = produto.preco * quantidade
+            total += subtotal
+            resultado.append(
+                {
+                    "codigo": codigo,
+                    "quantidade": quantidade,
+                    "subtotal": subtotal,
+                    "estoque": produto.estoque,
+                }
+            )
+
+        return {"total": total, "itens": resultado}
+
     def _get_produto(self, codigo: int) -> Produto:
         self._validate_codigo(codigo)
         produto = self.repository.get(codigo)

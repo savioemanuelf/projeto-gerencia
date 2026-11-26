@@ -23,3 +23,24 @@ class ProdutoResponse(BaseModel):
 class EstoqueResponse(BaseModel):
     codigo: int
     estoque: int
+
+
+class ItemVendaRequest(StrictSchema):
+    codigo: int
+    quantidade: int
+
+
+class VendaRequest(StrictSchema):
+    itens: list[ItemVendaRequest]
+
+
+class ItemVendaResponse(BaseModel):
+    codigo: int
+    quantidade: int
+    subtotal: float
+    estoque: int
+
+
+class VendaResponse(BaseModel):
+    total: float
+    itens: list[ItemVendaResponse]
