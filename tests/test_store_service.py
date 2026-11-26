@@ -26,5 +26,30 @@ class TestCadastrarProduto(LojaServiceTestCase):
             self.service.create_produto(123, Decimal("10.00"))
 
 
+class TestConsultarEstoque(LojaServiceTestCase):
+    def test_get_estoque_retorna_estoque_correto(self):
+        self.service.create_produto(123, Decimal("59.90"))
+        self.service.add_estoque(123, 15)
+
+        self.assertEqual(self.service.get_estoque(123), 15)
+
+    def test_get_estoque_produto_inexistente(self):
+        with self.assertRaises(ProdutoNotFoundError):
+            self.service.get_estoque(999)
+
+
+class TestEntradaEstoque(LojaServiceTestCase):
+    def test_add_estoque_soma_quantidade(self):
+        self.service.create_produto(123, Decimal("59.90"))
+
+        self.assertEqual(self.service.add_estoque(123, 10), 10)
+        self.assertEqual(self.service.add_estoque(123, 5), 15)
+        self.assertEqual(self.service.get_estoque(123), 15)
+
+    def test_add_estoque_produto_inexistente(self):
+        with self.assertRaises(ProdutoNotFoundError):
+            self.service.add_estoque(999, 10)
+
+
 if __name__ == "__main__":
     unittest.main()
