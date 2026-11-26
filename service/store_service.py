@@ -34,6 +34,15 @@ class LojaService:
         self.repository.save(produto)
         return produto.estoque
 
+    def remove_estoque(self, codigo: int, quantidade: int) -> int:
+        self._validate_quantidade(quantidade)
+        produto = self._get_produto(codigo)
+        if quantidade > produto.estoque:
+            raise InvalidDataError("Estoque insuficiente")
+        produto.estoque -= quantidade
+        self.repository.save(produto)
+        return produto.estoque
+
     def _get_produto(self, codigo: int) -> Produto:
         self._validate_codigo(codigo)
         produto = self.repository.get(codigo)
