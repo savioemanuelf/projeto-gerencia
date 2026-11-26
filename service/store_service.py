@@ -37,8 +37,6 @@ class LojaService:
     def remove_estoque(self, codigo: int, quantidade: int) -> int:
         self._validate_quantidade(quantidade)
         produto = self._get_produto(codigo)
-        if quantidade > produto.estoque:
-            raise InvalidDataError("Estoque insuficiente")
         produto.estoque -= quantidade
         self.repository.save(produto)
         return produto.estoque
@@ -48,15 +46,9 @@ class LojaService:
             raise InvalidDataError("A venda deve ter pelo menos um item")
 
         produtos = {}
-        total_por_codigo = {}
         for codigo, quantidade in itens:
             self._validate_quantidade(quantidade)
             produtos[codigo] = self._get_produto(codigo)
-            total_por_codigo[codigo] = total_por_codigo.get(codigo, 0) + quantidade
-
-        for codigo, quantidade_total in total_por_codigo.items():
-            if quantidade_total > produtos[codigo].estoque:
-                raise InvalidDataError(f"Estoque insuficiente para o produto {codigo}")
 
         resultado = []
         total = Decimal("0")
