@@ -3,9 +3,12 @@ from fastapi import APIRouter, Depends, status
 from api.dependencies import get_loja_service
 from api.schemas import (
     EstoqueResponse,
+    ItemVendaResponse,
     ProdutoCreateRequest,
     ProdutoResponse,
     QuantidadeRequest,
+    VendaRequest,
+    VendaResponse,
 )
 from service import LojaService
 
@@ -45,3 +48,23 @@ def remove_estoque(
 ):
     estoque = service.remove_estoque(codigo, request.quantidade)
     return EstoqueResponse(codigo=codigo, estoque=estoque)
+
+
+@router.post("/venda", status_code=status.HTTP_201_CREATED, response_model=VendaResponse)
+def create_venda(
+    request: VendaRequest,
+    service: LojaService = Depends(get_loja_service),
+):
+    venda = service.create_venda([(item.codigo, item.quantidade) for item in request.itens])
+    return VendaResponse(
+        total=float(venda["total"]),
+        itens=[
+            ItemVendaResponse(
+                codigo=i["codigo"],
+                quantidade=i["quantidade"],
+                subtotal=float(i["subtotal"]),
+                estoque=i["estoque"],
+            )
+            for i in venda["itens"]
+        ],
+    )
