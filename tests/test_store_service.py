@@ -51,5 +51,25 @@ class TestEntradaEstoque(LojaServiceTestCase):
             self.service.add_estoque(999, 10)
 
 
+class TestSaidaEstoque(LojaServiceTestCase):
+    def test_remove_estoque_subtrai_quantidade(self):
+        self.service.create_produto(123, Decimal("59.90"))
+        self.service.add_estoque(123, 10)
+
+        self.assertEqual(self.service.remove_estoque(123, 4), 6)
+        self.assertEqual(self.service.get_estoque(123), 6)
+
+    def test_remove_estoque_produto_inexistente(self):
+        with self.assertRaises(ProdutoNotFoundError):
+            self.service.remove_estoque(999, 1)
+
+    def test_remove_estoque_maior_que_estoque_deixa_negativo(self):
+        self.service.create_produto(123, Decimal("59.90"))
+        self.service.add_estoque(123, 5)
+
+        self.assertEqual(self.service.remove_estoque(123, 8), -3)
+        self.assertEqual(self.service.get_estoque(123), -3)
+
+
 if __name__ == "__main__":
     unittest.main()
