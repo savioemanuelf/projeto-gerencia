@@ -71,5 +71,30 @@ class TestSaidaEstoque(LojaServiceTestCase):
         self.assertEqual(self.service.get_estoque(123), -3)
 
 
+class TestVenda(LojaServiceTestCase):
+    def setUp(self):
+        super().setUp()
+        self.service.create_produto(123, Decimal("59.90"))
+        self.service.add_estoque(123, 15)
+        self.service.create_produto(456, Decimal("69.90"))
+        self.service.add_estoque(456, 8)
+
+    def test_create_venda_baixa_estoque_e_calcula_total(self):
+        venda = self.service.create_venda([(123, 2), (456, 1)])
+
+        self.assertEqual(venda["total"], Decimal("189.70"))
+        self.assertEqual(venda["itens"][0]["subtotal"], Decimal("119.80"))
+        self.assertEqual(venda["itens"][1]["subtotal"], Decimal("69.90"))
+        self.assertEqual(self.service.get_estoque(123), 13)
+        self.assertEqual(self.service.get_estoque(456), 7)
+
+    def test_create_venda_produto_inexistente_nao_altera_estoque(self):
+        with self.assertRaises(ProdutoNotFoundError):
+            self.service.create_venda([(123, 2), (999, 1)])
+
+        self.assertEqual(self.service.get_estoque(123), 15)
+        self.assertEqual(self.service.get_estoque(456), 8)
+
+
 if __name__ == "__main__":
     unittest.main()
