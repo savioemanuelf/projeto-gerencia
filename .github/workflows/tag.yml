@@ -1,0 +1,36 @@
+name: Marcação da Configuração Integrada
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  tag-release:
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'feature/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout da branch develop após merge
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Configurar Git e criar/atualizar tag
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          BRANCH_NAME="${HEAD_REF#feature/}"
+          TAG_NAME="build-${BRANCH_NAME}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -f "$TAG_NAME" "$MERGE_SHA"
+          git push origin "refs/tags/${TAG_NAME}" --force
