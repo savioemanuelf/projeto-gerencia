@@ -36,3 +36,11 @@ Front-end (em outro terminal):
 ```bash
 python -m cli.main
 ```
+## Testes
+
+Testes unitários da camada de serviço. Na raiz do projeto, com o ambiente
+virtual ativo:
+
+```bash
+python -m unittest discover -s tests -t . -v
+```
